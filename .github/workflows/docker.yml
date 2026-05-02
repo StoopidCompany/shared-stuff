@@ -223,7 +223,7 @@ jobs:
 
     steps:
       - name: Scan image with Grype
-        uses: anchore/scan-action@v4
+        uses: anchore/scan-action@v7
         id: scan
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest
