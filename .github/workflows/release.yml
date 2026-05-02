@@ -145,7 +145,7 @@ jobs:
           name: sbom-${{ needs.release-please.outputs.tag_name }}
 
       - name: Scan SBOM with Grype
-        uses: anchore/scan-action@v4
+        uses: anchore/scan-action@v7
         id: scan
         with:
           sbom: sbom.cyclonedx.json
