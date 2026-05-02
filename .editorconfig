@@ -1,0 +1,80 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 120
+
+[*.{md,markdown}]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.py]
+indent_size = 4
+max_line_length = 88
+
+[*.{rs,toml}]
+indent_size = 4
+max_line_length = 100
+
+[Cargo.toml]
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+max_line_length = 120
+
+[*.{json,jsonc,json5}]
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{tf,tfvars,hcl}]
+indent_size = 2
+
+[*.{proto,buf}]
+indent_size = 2
+
+[{Makefile,*.mk,GNUmakefile}]
+indent_style = tab
+indent_size = 4
+
+[*.go]
+indent_style = tab
+indent_size = 4
+
+[{Dockerfile,Dockerfile.*,*.dockerfile,.dockerignore}]
+indent_size = 2
+
+[*.{sh,bash,zsh}]
+indent_size = 2
+end_of_line = lf
+
+[*.{bat,cmd,ps1}]
+end_of_line = crlf
+
+[*.{sql,ddl}]
+indent_size = 2
+
+[*.{html,htm,css,scss,sass,less}]
+indent_size = 2
+
+[*.{xml,svg}]
+indent_size = 2
+
+[Tiltfile]
+indent_size = 4
+
+[*.{starlark,bzl}]
+indent_size = 4
+
+[{*.lock,*-lock.json,*-lock.yaml,Cargo.lock,uv.lock,poetry.lock}]
+indent_style = unset
+indent_size = unset
+max_line_length = off
+trim_trailing_whitespace = unset

@@ -1,0 +1,97 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly scan, Monday 08:00 ET (12:00 UTC standard / 13:00 UTC EDT)
+    - cron: "0 13 * * 1"
+
+# Cancel in-progress runs for the same branch when a new commit is pushed
+concurrency:
+  group: codeql-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  # ===========================================================================
+  # Template guard — short-circuits the entire workflow if .template-repo
+  # marker file exists. Delete .template-repo to enable real CI runs.
+  # ===========================================================================
+  guard:
+    name: Template guard
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.check.outputs.is_template }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f .template-repo ]; then
+            echo "::notice::This is the unconfigured template repo. Skipping CodeQL."
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    needs: guard
+    if: needs.guard.outputs.is_template != 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # CodeQL-supported languages relevant to this template.
+        # Remove entries that don't apply to the project.
+        # Supported values: actions, c-cpp, csharp, go, java-kotlin,
+        # javascript-typescript, python, ruby, rust, swift
+        language:
+          - javascript-typescript
+          - python
+          - rust
+          - actions
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # 'security-extended' enables more queries than the default
+          # at the cost of longer runtime. Drop to 'default' if scan time
+          # becomes problematic.
+          queries: security-extended
+          config: |
+            paths-ignore:
+              - '**/node_modules/**'
+              - '**/dist/**'
+              - '**/build/**'
+              - '**/target/**'
+              - '**/.venv/**'
+              - '**/venv/**'
+              - '**/__pycache__/**'
+              - '**/generated/**'
+              - '**/*.generated.*'
+              - '**/vendor/**'
+              - '**/third_party/**'
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

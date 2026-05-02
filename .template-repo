@@ -1,0 +1,16 @@
+This file marks the repository as the unconfigured template.
+
+While this file exists at the repository root, the following workflows
+short-circuit and exit successfully without doing real work:
+
+  - .github/workflows/ci.yml
+  - .github/workflows/codeql.yml
+  - .github/workflows/coverage.yml
+  - .github/workflows/release.yml
+  - .github/workflows/docker.yml
+
+Commit Lint (.github/workflows/commitlint.yml) still runs on this
+repository so contributions to the template itself are validated.
+
+DELETE THIS FILE as part of template setup. See CONTRIBUTING.md
+"Template Setup" section, step 1.

@@ -1,0 +1,246 @@
+version: 2
+
+# =============================================================================
+# Dependabot configuration
+# =============================================================================
+# Each ecosystem block is independent. Remove or comment out blocks for
+# ecosystems this project doesn't use.
+#
+# Conventions:
+#   - Weekly cadence (Monday) keeps PR volume manageable
+#   - Grouped updates reduce review fatigue
+#   - Major version bumps are isolated for explicit review
+#   - Security updates are NEVER blocked by these schedules
+# =============================================================================
+
+updates:
+  # ---------------------------------------------------------------------------
+  # GitHub Actions (workflow dependencies)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    groups:
+      actions-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # JavaScript / TypeScript (root)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      js-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      types:
+        patterns:
+          - "@types/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "eslint-*"
+          - "@typescript-eslint/*"
+      jest:
+        patterns:
+          - "jest"
+          - "@types/jest"
+          - "ts-jest"
+          - "jest-*"
+    ignore:
+      # Major version bumps are reviewed individually, not auto-grouped
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # ---------------------------------------------------------------------------
+  # Python (root)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      python-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      ruff:
+        patterns:
+          - "ruff"
+      pytest:
+        patterns:
+          - "pytest"
+          - "pytest-*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # ---------------------------------------------------------------------------
+  # Rust (root)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "rust"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    groups:
+      rust-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+      tokio:
+        patterns:
+          - "tokio"
+          - "tokio-*"
+      serde:
+        patterns:
+          - "serde"
+          - "serde-*"
+          - "serde_*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # ---------------------------------------------------------------------------
+  # Terraform (root)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "terraform"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "terraform"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      terraform-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  # ---------------------------------------------------------------------------
+  # Docker (root Dockerfile)
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    groups:
+      docker-minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+  # ---------------------------------------------------------------------------
+  # Additional directories (uncomment and adjust as needed)
+  # ---------------------------------------------------------------------------
+  # Dependabot does NOT recursively scan subdirectories. Each manifest location
+  # needs its own block. For monorepo layouts, duplicate the appropriate
+  # ecosystem block per directory.
+  #
+  # Example: TypeScript packages and services
+  # - package-ecosystem: "npm"
+  #   directory: "/packages/ts/example-package"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #   labels: ["dependencies", "javascript"]
+  #   commit-message:
+  #     prefix: "chore"
+  #     include: "scope"
+  #
+  # Example: Python services
+  # - package-ecosystem: "uv"
+  #   directory: "/services/python/example-service"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #   labels: ["dependencies", "python"]
+  #
+  # Example: Rust services
+  # - package-ecosystem: "cargo"
+  #   directory: "/services/rust/example-service"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #   labels: ["dependencies", "rust"]
+  #
+  # Example: Per-service Dockerfiles
+  # - package-ecosystem: "docker"
+  #   directory: "/services/python/example-service"
+  #   schedule:
+  #     interval: "weekly"
+  #     day: "monday"
+  #   labels: ["dependencies", "docker"]

@@ -1,0 +1,50 @@
+name: Commit Lint
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, reopened, synchronize ]
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: Commit messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install commitlint
+        run: |
+          npm install --no-save \
+            @commitlint/cli \
+            @commitlint/config-conventional
+
+      - name: Write commitlint config
+        run: |
+          cat > commitlint.config.cjs <<'EOF'
+          module.exports = {
+            extends: ['@commitlint/config-conventional'],
+            rules: {
+              'subject-case': [2, 'never', ['upper-case', 'pascal-case', 'start-case']],
+              'header-max-length': [2, 'always', 100],
+              'body-max-line-length': [2, 'always', 100],
+              'footer-max-line-length': [2, 'always', 100],
+            },
+          };
+          EOF
+
+      - name: Lint commits in PR range
+        run: |
+          npx commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}" \
+            --verbose

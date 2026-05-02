@@ -1,0 +1,38 @@
+{
+  "recommendations": [
+    "editorconfig.editorconfig",
+    "streetsidesoftware.code-spell-checker",
+    "mikestead.dotenv",
+
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "orta.vscode-jest",
+
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.debugpy",
+    "charliermarsh.ruff",
+
+    "rust-lang.rust-analyzer",
+    "tamasfe.even-better-toml",
+
+    "hashicorp.terraform",
+
+    "redhat.vscode-yaml",
+    "ms-kubernetes-tools.vscode-kubernetes-tools",
+    "docker.docker",
+    "ms-vscode-remote.remote-containers",
+
+    "bufbuild.vscode-buf",
+
+    "github.vscode-github-actions",
+    "github.vscode-pull-request-github"
+  ],
+  "unwantedRecommendations": [
+    "ms-python.black-formatter",
+    "ms-python.pylint",
+    "ms-python.isort",
+    "ms-azuretools.vscode-docker",
+    "ms-azuretools.vscode-containers"
+  ]
+}

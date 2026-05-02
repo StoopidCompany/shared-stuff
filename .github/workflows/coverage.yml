@@ -1,0 +1,295 @@
+name: Coverage
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: coverage-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+  pull-requests: write # required to comment coverage reports on PRs
+
+# Threshold enforced for changed lines on PRs.
+# Adjust per project by overriding the env at the workflow level.
+env:
+  COVERAGE_THRESHOLD: "80"
+
+jobs:
+  # ===========================================================================
+  # Template guard — short-circuits the entire workflow if .template-repo
+  # marker file exists. Delete .template-repo to enable real CI runs.
+  # ===========================================================================
+  guard:
+    name: Template guard
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.check.outputs.is_template }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f .template-repo ]; then
+            echo "::notice::This is the unconfigured template repo. Skipping coverage."
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ===========================================================================
+  # Path filter — same approach as ci.yml
+  # ===========================================================================
+  changes:
+    name: Detect changes
+    needs: guard
+    if: needs.guard.outputs.is_template != 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      typescript: ${{ steps.filter.outputs.typescript }}
+      rust: ${{ steps.filter.outputs.rust }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            python:
+              - '**/*.py'
+              - '**/pyproject.toml'
+              - '**/uv.lock'
+            typescript:
+              - '**/*.ts'
+              - '**/*.tsx'
+              - '**/*.js'
+              - '**/*.jsx'
+              - '**/package.json'
+              - '**/pnpm-lock.yaml'
+            rust:
+              - '**/*.rs'
+              - '**/Cargo.toml'
+              - '**/Cargo.lock'
+
+  # ===========================================================================
+  # Python coverage
+  # ===========================================================================
+  python:
+    name: Python coverage
+    needs: changes
+    if: needs.changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need full history for diff-cover to compare against base
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies (with diff-cover)
+        run: |
+          uv sync --all-extras --dev
+          uv pip install diff-cover
+
+      - name: Run tests with coverage
+        run: |
+          uv run pytest \
+            --cov \
+            --cov-report=xml:coverage-python.xml \
+            --cov-report=term
+
+      - name: Enforce coverage on changed lines
+        if: github.event_name == 'pull_request'
+        run: |
+          uv run diff-cover coverage-python.xml \
+            --compare-branch=origin/${{ github.base_ref }} \
+            --fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            --html-report=diff-cover-python.html \
+            --markdown-report=diff-cover-python.md
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-python
+          path: |
+            coverage-python.xml
+            diff-cover-python.html
+            diff-cover-python.md
+          retention-days: 14
+
+      - name: Comment coverage report on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: coverage-python
+          path: diff-cover-python.md
+
+  # ===========================================================================
+  # TypeScript coverage
+  # ===========================================================================
+  typescript:
+    name: TypeScript coverage
+    needs: changes
+    if: needs.changes.outputs.typescript == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests with coverage
+        run: |
+          pnpm test -- \
+            --ci \
+            --coverage \
+            --coverageReporters=cobertura \
+            --coverageReporters=lcov \
+            --coverageReporters=text
+
+      - name: Set up Python (for diff-cover)
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install diff-cover
+        run: pip install diff-cover
+
+      - name: Enforce coverage on changed lines
+        if: github.event_name == 'pull_request'
+        run: |
+          diff-cover coverage/cobertura-coverage.xml \
+            --compare-branch=origin/${{ github.base_ref }} \
+            --fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            --html-report=diff-cover-typescript.html \
+            --markdown-report=diff-cover-typescript.md
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-typescript
+          path: |
+            coverage/
+            diff-cover-typescript.html
+            diff-cover-typescript.md
+          retention-days: 14
+
+      - name: Comment coverage report on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: coverage-typescript
+          path: diff-cover-typescript.md
+
+  # ===========================================================================
+  # Rust coverage
+  # ===========================================================================
+  rust:
+    name: Rust coverage
+    needs: changes
+    if: needs.changes.outputs.rust == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache cargo registry and target
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Run tests with coverage
+        run: |
+          cargo llvm-cov --all-features --workspace \
+            --cobertura --output-path coverage-rust.xml
+
+      - name: Set up Python (for diff-cover)
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install diff-cover
+        run: pip install diff-cover
+
+      - name: Enforce coverage on changed lines
+        if: github.event_name == 'pull_request'
+        run: |
+          diff-cover coverage-rust.xml \
+            --compare-branch=origin/${{ github.base_ref }} \
+            --fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            --html-report=diff-cover-rust.html \
+            --markdown-report=diff-cover-rust.md
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-rust
+          path: |
+            coverage-rust.xml
+            diff-cover-rust.html
+            diff-cover-rust.md
+          retention-days: 14
+
+      - name: Comment coverage report on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: coverage-rust
+          path: diff-cover-rust.md
+
+  # ===========================================================================
+  # Aggregator — single required check
+  # ===========================================================================
+  coverage-passed:
+    name: Coverage passed
+    runs-on: ubuntu-latest
+    needs: [ guard, changes, python, typescript, rust ]
+    if: always()
+    steps:
+      - name: Verify all coverage jobs succeeded or were skipped
+        run: |
+          if [ "${{ needs.guard.outputs.is_template }}" = "true" ]; then
+            echo "Template guard active. Coverage skipped intentionally."
+            exit 0
+          fi
+          results='${{ toJSON(needs) }}'
+          echo "Job results:"
+          echo "$results" | jq .
+          failed=$(echo "$results" | jq -r 'to_entries[] | select(.value.result == "failure" or .value.result == "cancelled") | .key')
+          if [ -n "$failed" ]; then
+            echo "::error::The following coverage jobs failed or were cancelled:"
+            echo "$failed"
+            exit 1
+          fi
+          echo "All coverage jobs succeeded or were skipped."

@@ -1,0 +1,55 @@
+# =============================================================================
+
+# Tool versions
+
+# =============================================================================
+
+# This file pins the exact versions of language runtimes and CLI tools used
+
+# by this project. Read by mise (https://mise.jdx.dev) and asdf
+
+# (https://asdf-vm.com), both of which support this format.
+
+#
+
+# Run `mise install` (or `asdf install`) from the repo root to install all
+
+# pinned versions. Your shell will automatically switch to these versions
+
+# when you cd into the repo.
+
+#
+
+# Template setup:
+
+# 1. Set the actual versions your project requires below.
+
+# 2. Delete any lines for tools the project doesn't use.
+
+# 3. Delete this comment block once setup is complete.
+
+#
+
+# Conventions:
+
+# - Pin to exact versions (3.12.7), not ranges (3.12, latest).
+
+# - Bumping a version is a deliberate PR with CI verification.
+
+# - The set of tools listed here is the SOURCE OF TRUTH for what this
+
+# project requires. CONTRIBUTING.md, Dockerfiles, and CI workflows
+
+# should align with these versions.
+
+# =============================================================================
+
+# python 3.12.7
+
+# nodejs 22.10.0
+
+# pnpm 9.12.3
+
+# rust 1.82.0
+
+# terraform 1.9.8

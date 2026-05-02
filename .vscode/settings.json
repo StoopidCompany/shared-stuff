@@ -1,0 +1,254 @@
+{
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.rulers": [120],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+
+  "files.eol": "\n",
+  "files.trimTrailingWhitespace": true,
+  "files.trimFinalNewlines": true,
+  "files.insertFinalNewline": true,
+  "files.associations": {
+    "Tiltfile": "starlark",
+    "*.tiltfile": "starlark",
+    ".env.example": "dotenv",
+    ".env.*.example": "dotenv",
+    "*.hcl": "terraform",
+    "Dockerfile.*": "dockerfile",
+    "*.proto": "proto3"
+  },
+
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.pytest_cache": true,
+    "**/.ruff_cache": true,
+    "**/.mypy_cache": true,
+    "**/node_modules": true,
+    "**/target": true,
+    "**/.terraform": true
+  },
+
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/target": true,
+    "**/.next": true,
+    "**/coverage": true,
+    "**/.turbo": true,
+    "**/.terraform": true,
+    "**/__pycache__": true,
+    "**/*.lock": true,
+    "**/Cargo.lock": false,
+    "**/package-lock.json": true,
+    "**/yarn.lock": true,
+    "**/pnpm-lock.yaml": true,
+    "**/poetry.lock": true,
+    "**/generated": true,
+    "**/*.generated.*": true
+  },
+
+  "prettier.printWidth": 120,
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
+  "prettier.semi": true,
+  "prettier.singleQuote": false,
+  "prettier.trailingComma": "all",
+  "prettier.bracketSpacing": true,
+  "prettier.arrowParens": "always",
+  "prettier.endOfLine": "lf",
+
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "editor.wordWrap": "on"
+  },
+
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.tabSize": 4,
+    "editor.rulers": [88],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "ruff.lineLength": 88,
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.terminal.activateEnvironment": true,
+
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.tabSize": 4,
+    "editor.rulers": [100],
+    "editor.formatOnSave": true
+  },
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.cargo.features": "all",
+  "rust-analyzer.imports.granularity.group": "module",
+  "rust-analyzer.imports.prefix": "crate",
+
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+    "editor.tabSize": 2
+  },
+  "evenBetterToml.formatter.alignEntries": false,
+  "evenBetterToml.formatter.reorderKeys": false,
+
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true
+  },
+  "[terraform-vars]": {
+    "editor.defaultFormatter": "hashicorp.terraform",
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true
+  },
+
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.autoIndent": "keep"
+  },
+  "yaml.format.enable": true,
+  "yaml.format.singleQuote": false,
+  "yaml.format.bracketSpacing": true,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.{yml,yaml}",
+    "https://json.schemastore.org/github-action.json": ".github/actions/*/action.{yml,yaml}",
+    "https://json.schemastore.org/dependabot-2.0.json": ".github/dependabot.{yml,yaml}",
+    "https://json.schemastore.org/chart.json": "charts/*/Chart.yaml",
+    "kubernetes": "k8s/**/*.{yml,yaml}"
+  },
+
+  "[proto3]": {
+    "editor.defaultFormatter": "bufbuild.vscode-buf",
+    "editor.tabSize": 2,
+    "editor.formatOnSave": true
+  },
+
+  "[dockerfile]": {
+    "editor.defaultFormatter": "docker.docker",
+    "editor.tabSize": 2
+  },
+
+  "[shellscript]": {
+    "editor.tabSize": 2,
+    "files.eol": "\n"
+  },
+
+  "[makefile]": {
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
+  },
+
+  "[starlark]": {
+    "editor.tabSize": 4
+  },
+
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.run": "onType",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+
+  "jest.runMode": "on-demand",
+  "jest.outputConfig": {
+    "revealOn": "run",
+    "revealWithFocus": "test-results"
+  },
+
+  "cSpell.words": [
+    "buildx",
+    "buf",
+    "cerebellum",
+    "ciarant",
+    "frontal",
+    "ghcr",
+    "hippocampus",
+    "kube",
+    "kubectl",
+    "kubeconfig",
+    "liquibase",
+    "medulla",
+    "minikube",
+    "otel",
+    "promtail",
+    "protobuf",
+    "pyproject",
+    "rustfmt",
+    "ruff",
+    "structlog",
+    "thalamus",
+    "tilt",
+    "tiltfile",
+    "vici"
+  ],
+  "cSpell.enableFiletypes": [
+    "markdown",
+    "python",
+    "typescript",
+    "typescriptreact",
+    "rust",
+    "yaml",
+    "terraform"
+  ],
+  "cSpell.ignorePaths": [
+    "node_modules",
+    "target",
+    "dist",
+    "build",
+    ".git",
+    "**/*.lock",
+    "**/Cargo.lock",
+    "**/package-lock.json",
+    "**/poetry.lock"
+  ],
+
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.enableSmartCommit": false,
+  "git.suggestSmartCommit": false,
+
+  "terminal.integrated.scrollback": 10000
+}

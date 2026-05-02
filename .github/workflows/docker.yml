@@ -1,0 +1,240 @@
+name: Docker
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "v*.*.*" ]
+  pull_request:
+    branches: [ main ]
+    paths:
+      - "**/Dockerfile"
+      - "**/Dockerfile.*"
+      - "**/.dockerignore"
+      - "**/docker-compose*.yml"
+      - "**/compose*.yml"
+      - ".github/workflows/docker.yml"
+
+concurrency:
+  group: docker-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' &&
+    !startsWith(github.ref, 'refs/tags/') }}
+
+permissions:
+  contents: read
+
+# ===========================================================================
+# Configuration
+# ===========================================================================
+# Set REGISTRY at the repo level via Actions variables, or override here.
+# Default: ghcr.io. For ECR projects, set REGISTRY to the ECR URI
+# (e.g. 123456789.dkr.ecr.us-east-1.amazonaws.com) via repo variable.
+env:
+  REGISTRY: ${{ vars.REGISTRY || 'ghcr.io' }}
+  IMAGE_NAME: ${{ vars.IMAGE_NAME || github.repository }}
+  PLATFORMS: linux/amd64,linux/arm64
+
+jobs:
+  # ===========================================================================
+  # Template guard — short-circuits the entire workflow if .template-repo
+  # marker file exists. Delete .template-repo to enable real Docker builds.
+  # ===========================================================================
+  guard:
+    name: Template guard
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.check.outputs.is_template }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f .template-repo ]; then
+            echo "::notice::This is the unconfigured template repo. Skipping Docker build."
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ===========================================================================
+  # Build (and conditionally push) the image
+  # ===========================================================================
+  build:
+    name: Build & Push
+    needs: guard
+    if: needs.guard.outputs.is_template != 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write # required for ghcr.io push
+      id-token: write # required for OIDC (ECR auth + cosign keyless signing)
+      attestations: write # required for build provenance attestation
+
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
+      digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU (for multi-arch builds)
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # -----------------------------------------------------------------------
+      # Registry login — branches by REGISTRY value
+      # -----------------------------------------------------------------------
+      - name: Login to GHCR
+        if: env.REGISTRY == 'ghcr.io' && github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure AWS credentials (for ECR)
+        if: contains(env.REGISTRY, 'ecr') && github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Login to ECR
+        if: contains(env.REGISTRY, 'ecr') && github.event_name != 'pull_request'
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # -----------------------------------------------------------------------
+      # Tag strategy
+      # -----------------------------------------------------------------------
+      - name: Compute image tags and labels
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            # branch name on push to non-main branches
+            type=ref,event=branch
+            # PR-NNN tag for PR builds (no push, just build)
+            type=ref,event=pr
+            # short SHA for every build
+            type=sha,format=short
+            # 'latest' only on main
+            type=raw,value=latest,enable={{is_default_branch}}
+            # semver tags from git tags (e.g. v1.2.3 → 1.2.3, 1.2, 1)
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=${{ github.event.repository.description }}
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.licenses=${{ github.event.repository.license.spdx_id }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      # -----------------------------------------------------------------------
+      # Build (PR) or build + push (main / tag)
+      # -----------------------------------------------------------------------
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: ${{ env.PLATFORMS }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
+
+      # -----------------------------------------------------------------------
+      # Build provenance attestation (GitHub-native, SLSA Level 3)
+      # -----------------------------------------------------------------------
+      - name: Generate build provenance attestation
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+  # ===========================================================================
+  # SBOM for the built image (release tags only, per project policy)
+  # ===========================================================================
+  image-sbom:
+    name: Image SBOM
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # upload to release
+      packages: read
+
+    steps:
+      - name: Generate SBOM for built image (CycloneDX)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest
+            }}
+          format: cyclonedx-json
+          output-file: image-sbom.cyclonedx.json
+
+      - name: Generate SBOM for built image (SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest
+            }}
+          format: spdx-json
+          output-file: image-sbom.spdx.json
+
+      - name: Attach image SBOMs to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            image-sbom.cyclonedx.json \
+            image-sbom.spdx.json \
+            --clobber
+
+      - name: Upload image SBOMs as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-sbom-${{ github.ref_name }}
+          path: |
+            image-sbom.cyclonedx.json
+            image-sbom.spdx.json
+          retention-days: 90
+
+  # ===========================================================================
+  # Vulnerability scan of the built image (PR + main + tag)
+  # ===========================================================================
+  scan-image:
+    name: Scan Image
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Scan image with Grype
+        uses: anchore/scan-action@v4
+        id: scan
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest
+            }}
+          fail-build: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          severity-cutoff: high
+          output-format: sarif
+
+      - name: Upload scan results to Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+          category: grype-image-scan

@@ -1,0 +1,161 @@
+name: Release
+
+on:
+  push:
+    branches: [ main ]
+
+# Only one release run at a time
+concurrency:
+  group: release-${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ===========================================================================
+  # Template guard — short-circuits the entire workflow if .template-repo
+  # marker file exists. Delete .template-repo to enable real release runs.
+  # ===========================================================================
+  guard:
+    name: Template guard
+    runs-on: ubuntu-latest
+    outputs:
+      is_template: ${{ steps.check.outputs.is_template }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ -f .template-repo ]; then
+            echo "::notice::This is the unconfigured template repo. Skipping release."
+            echo "is_template=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_template=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # ===========================================================================
+  # release-please: opens/updates a release PR based on Conventional Commits.
+  # When that PR is merged, this job creates a tag and GitHub release.
+  # ===========================================================================
+  release-please:
+    name: Release Please
+    needs: guard
+    if: needs.guard.outputs.is_template != 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # create tags, releases, commits on the release PR
+      pull-requests: write # open and update the release PR
+      issues: write # release-please occasionally needs this for labels
+
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      major: ${{ steps.release.outputs.major }}
+      minor: ${{ steps.release.outputs.minor }}
+      patch: ${{ steps.release.outputs.patch }}
+
+    steps:
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          # Defaults to GITHUB_TOKEN. For workflows that should re-trigger
+          # other workflows on the release commit/tag, replace with a PAT
+          # or GitHub App token. GITHUB_TOKEN does NOT trigger downstream
+          # workflows from commits/tags it creates.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Looks for .release-please-manifest.json and release-please-config.json
+          # at repo root by default. Configure those files per project.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  # ===========================================================================
+  # The following jobs run only when release-please created a release.
+  # ===========================================================================
+
+  # ---------------------------------------------------------------------------
+  # SBOM generation — attaches a CycloneDX SBOM to the GitHub release
+  # ---------------------------------------------------------------------------
+  sbom:
+    name: Generate SBOM
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # required to upload assets to the release
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+
+      - name: Generate SBOM (CycloneDX) with Syft
+        uses: anchore/sbom-action@v0
+        with:
+          format: cyclonedx-json
+          output-file: sbom.cyclonedx.json
+          # Scan the entire repository
+          path: .
+
+      - name: Generate SBOM (SPDX) with Syft
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: sbom.spdx.json
+          path: .
+
+      - name: Attach SBOMs to GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.release-please.outputs.tag_name }}" \
+            sbom.cyclonedx.json \
+            sbom.spdx.json \
+            --clobber
+
+      - name: Upload SBOMs as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ needs.release-please.outputs.tag_name }}
+          path: |
+            sbom.cyclonedx.json
+            sbom.spdx.json
+          retention-days: 90
+
+  # ---------------------------------------------------------------------------
+  # Vulnerability scan against the SBOM — fails release if critical CVEs found
+  # ---------------------------------------------------------------------------
+  scan-sbom:
+    name: Scan SBOM
+    needs: [ release-please, sbom ]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Download SBOMs
+        uses: actions/download-artifact@v4
+        with:
+          name: sbom-${{ needs.release-please.outputs.tag_name }}
+
+      - name: Scan SBOM with Grype
+        uses: anchore/scan-action@v4
+        id: scan
+        with:
+          sbom: sbom.cyclonedx.json
+          fail-build: true
+          severity-cutoff: high
+          output-format: sarif
+
+      - name: Upload scan results to Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+          category: grype-release-scan

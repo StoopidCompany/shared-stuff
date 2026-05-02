@@ -1,0 +1,34 @@
+name: ADR Lint
+
+on:
+  pull_request:
+    paths:
+      - "docs/adrs/**"
+      - "scripts/adr-lint.py"
+      - ".github/workflows/adr-lint.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "docs/adrs/**"
+      - "scripts/adr-lint.py"
+      - ".github/workflows/adr-lint.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: adr-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  adr-lint:
+    name: ADR lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run adr-lint (strict mode)
+        run: scripts/adr-lint.py --adr-dir docs/adrs --strict
