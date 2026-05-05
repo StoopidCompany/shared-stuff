@@ -8,11 +8,6 @@ For security-related concerns and how to report vulnerabilities, see
 [`SECURITY.md`](./SECURITY.md). For expected behavior in project spaces, see
 [`CODE_OF_CONDUCT.md`](./CODE_OF_CONDUCT.md).
 
-> **Template setup:** This repository was created from a template and requires
-> one-time configuration before it is fully functional. See
-> [Template Setup](#template-setup) below. Delete this blockquote and the
-> entire `Template Setup` section once setup is complete.
-
 ## Table of Contents
 
 - [Template Setup](#template-setup) _(delete after setup)_
@@ -27,142 +22,6 @@ For security-related concerns and how to report vulnerabilities, see
 - [Releasing](#releasing)
 - [Troubleshooting](#troubleshooting)
 - [Getting Help](#getting-help)
-
-## Template Setup
-
-> **Delete this entire section once setup is complete.** All inline
-> `> **Setup:**` blockquotes throughout this document should also be removed
-> as their corresponding tasks are addressed.
-
-This checklist covers everything required to make a freshly-instantiated
-repository functional. Work through it in order; later steps depend on
-earlier ones.
-
-### 1. Delete the template marker
-
-Remove `.template-repo` from the repository root. While this file exists,
-the CI, CodeQL, Coverage, Release, and Docker workflows short-circuit and
-exit successfully without running. This prevents the unconfigured template
-from generating noise or failing runs.
-
-```sh
-rm .template-repo
-git add .template-repo
-git commit -m "chore: remove template marker"
-```
-
-The Commit Lint workflow continues to run regardless — it validates PR
-titles whether the repository is the template or an instantiated project.
-
-### 2. Replace placeholders
-
-Search and replace across the repository:
-
-- `<ORG>` — the organization or team name
-- `<PROJECT_NAME>` — the project's short name (used in `release-please-config.json` and elsewhere)
-- `<security@org.com>` — the security contact email
-
-Files known to contain placeholders:
-
-- `SECURITY.md`
-- `CONTRIBUTING.md` (this file)
-- `release-please-config.json`
-
-### 3. Configure GitHub repository settings
-
-Under the repository's **Settings** tab:
-
-- **General → Pull Requests:**
-  - Allow merge commits: **disabled**
-  - Allow squash merging: **enabled**
-    - Default commit message: **"Pull request title"** (this is critical — release-please reads merge commit messages, which under squash-merge come from the PR title)
-  - Allow rebase merging: **disabled**
-  - Always suggest updating pull request branches: **enabled**
-  - Automatically delete head branches: **enabled**
-- **Code security and analysis:** enable
-  - Dependabot alerts
-  - Dependabot security updates
-  - Secret scanning
-  - Push protection
-  - Code scanning (CodeQL is configured via workflow but must be enabled)
-- **Actions → General:** confirm workflow permissions allow read/write where needed (Settings → Actions → General → Workflow permissions)
-
-### 4. Configure branch protection
-
-Under **Settings → Branches**, add a branch protection rule for `main`:
-
-- Require a pull request before merging
-- Require approvals: **1**
-- Require review from Code Owners
-- Require status checks to pass before merging:
-  - `CI passed`
-  - `Coverage passed`
-  - `Commit Lint / PR title`
-  - `CodeQL / Analyze (...)` for each language in use
-  - `Docker / Build & Push` (only if Dockerfile present)
-- Require branches to be up to date before merging
-- Require conversation resolution before merging
-- Do not allow bypassing the above settings
-
-### 5. Configure CODEOWNERS
-
-Edit `.github/CODEOWNERS` to assign owners for the codebase. At minimum,
-include a global fallback (`* @<org>/<team>`).
-
-### 6. Configure container registry (if applicable)
-
-This repository defaults to `ghcr.io` and requires no setup. If publishing
-to ECR or another registry instead:
-
-- Add repository **Variables** (Settings → Secrets and variables → Actions → Variables):
-  - `REGISTRY` — e.g. `123456789.dkr.ecr.us-east-1.amazonaws.com`
-  - `IMAGE_NAME` — e.g. `my-project` (omit to use `<owner>/<repo>`)
-  - `AWS_REGION` — e.g. `us-east-1` (ECR only)
-- Add repository **Secret** (ECR only):
-  - `AWS_ROLE_TO_ASSUME` — IAM role ARN configured for OIDC trust with this repository
-- Configure AWS-side OIDC trust:
-  - Create an IAM identity provider for `token.actions.githubusercontent.com`
-  - Create an IAM role with a trust policy scoped to this GitHub org/repo
-  - Grant the role ECR push permissions on the target repository
-  - Ensure the target ECR repository exists (ECR does not auto-create)
-
-### 7. Choose project-specific options
-
-- **Release type:** Edit `release-please-config.json` and change `release-type` from `simple` to `node`, `python`, or `rust` if this project has a single canonical version file. Leave as `simple` for polyglot or version-less projects.
-- **Local dev orchestrator:** Update `make dev` in the `Makefile` if neither Tilt nor Docker Compose is appropriate.
-- **Python type checker:** If using Python, decide between Pyright and mypy and add the chosen tool to `pyproject.toml` dev dependencies. The CI workflow auto-detects which is installed.
-
-### 8. Create `.env.example`
-
-If this project requires environment variables, create `.env.example` at the
-repository root with placeholder values only. Real secrets must come from an
-external secret store; see [`SECURITY.md`](./SECURITY.md#secrets-management).
-
-### 9. Remove unused language scaffolding
-
-Delete files and configuration for languages this project does not use:
-
-- TypeScript: remove `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, the `npm` block from `.github/dependabot.yml`
-- Python: remove `pyproject.toml`, `uv.lock`, the `uv` block from `.github/dependabot.yml`
-- Rust: remove `Cargo.toml`, `Cargo.lock`, the `cargo` block from `.github/dependabot.yml`
-- Terraform: remove all `.tf` files and the `terraform` block from `.github/dependabot.yml`
-
-The CI workflow (`ci.yml`) auto-detects which languages are present via path
-filters; unused language jobs simply skip. Removing scaffolding keeps the
-repository clean and avoids confusion.
-
-### 10. Verify
-
-Open a test PR with a trivial change. Confirm:
-
-- All required CI checks run and pass
-- The PR title is validated by commitlint
-- Coverage report posts as a sticky comment (if applicable)
-- CodeQL findings (if any) appear in the Security tab
-
-If everything looks correct, **delete the [Template Setup](#template-setup)
-section, this blockquote, the entry in the Table of Contents, and any
-remaining `> **Setup:**` blockquotes throughout this document.**
 
 ## Getting Started
 
@@ -204,11 +63,6 @@ make bootstrap
 any local state required to run the project.
 
 ### Local Environment
-
-> **Setup:** If this project requires environment variables, create
-> `.env.example` at the repository root with placeholder values only.
-> Real secrets must come from an external secret store; see
-> [`SECURITY.md`](./SECURITY.md#secrets-management).
 
 Copy the example environment file:
 
@@ -342,10 +196,6 @@ The old name is removed; there is no deprecation period.
 
 ### Review requirements
 
-> **Setup:** Confirm `.github/CODEOWNERS` is populated with appropriate
-> owners. At minimum, include a global fallback (`* @<org>/<team>`).
-> Branch protection on `main` should require Code Owner review.
-
 - One approval from a code owner is required to merge.
 - Code owners are defined in `.github/CODEOWNERS`.
 - All required CI checks must pass.
@@ -391,10 +241,6 @@ A change is ready to merge when:
 - Conversations are resolved
 
 ## Per-Language Conventions
-
-> **Setup:** Delete subsections below for languages this project does not use.
-> CI auto-detects language presence via path filters; subsections kept here
-> should match what the project actually contains.
 
 ### TypeScript / JavaScript
 

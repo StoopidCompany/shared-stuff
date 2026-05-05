@@ -90,4 +90,10 @@ review and edit before committing.
 <!-- — the index is part of the documentation, and a hand-curated list reads -->
 <!-- better than a `ls`-style dump. -->
 
-- _(no ADRs yet)_
+- [ADR-0001 — Polyglot monorepo layout](0001-polyglot-monorepo-layout.md)
+- [ADR-0002 — Conventional commits and semver](0002-conventional-commits-and-semver.md)
+- [ADR-0003 — Trunk-based, tags as deploy targets](0003-trunk-based-tags-as-deploy-targets.md)
+- [ADR-0004 — Shared logging JSON schema](0004-shared-logging-json-schema.md)
+- [ADR-0005 — Parameterized Helm chart base](0005-parameterized-helm-chart-base.md)
+- [ADR-0006 — Local package registry workflow](0006-local-package-registry-workflow.md)
+- [ADR-0007 — Package naming convention](0007-package-naming-convention.md)
