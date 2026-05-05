@@ -1,6 +1,6 @@
 [project]
 name = "stoopid-logging"
-version = "0.0.0"
+version = "0.1.0"
 description = "Structured JSON logging for Python services, conforming to the stoopid-commons shared log-event schema."
 readme = "README.md"
 license = "MIT"
