@@ -50,9 +50,7 @@ export function bindingsFormatter(
  * `context` field, its contents are merged in. The `context` key is dropped
  * from the output when empty.
  */
-export function logFormatter(
-  obj: Record<string, unknown>,
-): Record<string, unknown> {
+export function logFormatter(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   const context: Record<string, unknown> = {};
 

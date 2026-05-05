@@ -15,7 +15,12 @@
       "require": "./dist/index.cjs"
     }
   },
-  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "engines": {
     "node": ">=20"
   },
@@ -58,5 +63,11 @@
     "url": "git+https://github.com/stoopidJSON/stoopid-commons.git",
     "directory": "packages/ts/stoopid-logging"
   },
-  "keywords": ["logging", "pino", "json", "opentelemetry", "structured"]
+  "keywords": [
+    "logging",
+    "pino",
+    "json",
+    "opentelemetry",
+    "structured"
+  ]
 }

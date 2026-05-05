@@ -35,16 +35,22 @@ fn main() {
 Each call emits a single line of JSON to stdout, e.g.:
 
 ```json
-{"timestamp":"2026-05-05T17:42:11.123Z","level":"info","message":"service started","service":"orders","version":"1.4.2"}
+{
+  "timestamp": "2026-05-05T17:42:11.123Z",
+  "level": "info",
+  "message": "service started",
+  "service": "orders",
+  "version": "1.4.2"
+}
 ```
 
 ## Configuration
 
-| Variable | Purpose | Fallback |
-| --- | --- | --- |
-| `LOG_LEVEL` | Minimum severity (`debug`/`info`/`warn`/`error`/`fatal`) | `info` |
-| `OTEL_SERVICE_NAME` | Service name | `SERVICE_NAME`, then `"unknown_service"` |
-| `SERVICE_VERSION` | Service version | parsed from `OTEL_RESOURCE_ATTRIBUTES`, then `"0.0.0"` |
+| Variable            | Purpose                                                  | Fallback                                               |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------------------ |
+| `LOG_LEVEL`         | Minimum severity (`debug`/`info`/`warn`/`error`/`fatal`) | `info`                                                 |
+| `OTEL_SERVICE_NAME` | Service name                                             | `SERVICE_NAME`, then `"unknown_service"`               |
+| `SERVICE_VERSION`   | Service version                                          | parsed from `OTEL_RESOURCE_ATTRIBUTES`, then `"0.0.0"` |
 
 User-supplied event fields (e.g. `tracing::info!(user_id = "u_1", "msg")`)
 and span fields land inside the nested `context` object on the emitted

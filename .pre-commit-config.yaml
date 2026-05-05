@@ -16,20 +16,20 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        args: [ --markdown-linebreak-ext=md ]
+        args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
       - id: mixed-line-ending
-        args: [ --fix=lf ]
+        args: [--fix=lf]
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: [ --maxkb=1000 ]
+        args: [--maxkb=1000]
       - id: check-case-conflict
       - id: check-symlinks
       - id: destroyed-symlinks
       - id: check-executables-have-shebangs
       - id: check-shebang-scripts-are-executable
       - id: check-yaml
-        args: [ --allow-multiple-documents ]
+        args: [--allow-multiple-documents]
         exclude: "^(charts/.*/templates/|\\.github/workflows/.*\\.ya?ml$)"
       - id: check-json
       - id: check-toml
@@ -50,21 +50,8 @@ repos:
     rev: v4.0.0
     hooks:
       - id: conventional-pre-commit
-        stages: [ commit-msg ]
-        args:
-          [
-            feat,
-            fix,
-            docs,
-            style,
-            refactor,
-            perf,
-            test,
-            build,
-            ci,
-            chore,
-            revert,
-          ]
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert]
 
   # ===========================================================================
   # Markdown
@@ -73,7 +60,7 @@ repos:
     rev: v0.43.0
     hooks:
       - id: markdownlint
-        args: [ --disable, MD013, MD033, MD041, "--" ]
+        args: [--disable, MD013, MD033, MD041, "--"]
         # MD013: line length (handled by editorconfig/prettier)
         # MD033: inline HTML (sometimes necessary)
         # MD041: first line h1 (not always desired)
@@ -85,7 +72,7 @@ repos:
     rev: v1.35.1
     hooks:
       - id: yamllint
-        args: [ -d, "{extends: relaxed, rules: {line-length: {max: 200}}}" ]
+        args: [-d, "{extends: relaxed, rules: {line-length: {max: 200}}}"]
         exclude: "^(charts/.*/templates/|\\.github/workflows/.*\\.ya?ml$)"
 
   # ===========================================================================
@@ -100,7 +87,7 @@ repos:
     rev: v3.10.0-2
     hooks:
       - id: shfmt
-        args: [ -i, "2", -ci, -bn, -w ]
+        args: [-i, "2", -ci, -bn, -w]
 
   # ===========================================================================
   # Dockerfile
@@ -109,7 +96,7 @@ repos:
     rev: v2.13.1-beta
     hooks:
       - id: hadolint-docker
-        args: [ --ignore, DL3008, --ignore, DL3018 ]
+        args: [--ignore, DL3008, --ignore, DL3018]
 
   # ===========================================================================
   # Python — runs only when Python files are staged
@@ -118,7 +105,7 @@ repos:
     rev: v0.8.4
     hooks:
       - id: ruff
-        args: [ --fix, --exit-non-zero-on-fix ]
+        args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
   # ===========================================================================

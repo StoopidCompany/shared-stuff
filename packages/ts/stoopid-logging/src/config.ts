@@ -1,6 +1,11 @@
 import pino from "pino";
 
-import { bindingsFormatter, levelFormatter, logFormatter, timestampFormatter } from "./formatters.js";
+import {
+  bindingsFormatter,
+  levelFormatter,
+  logFormatter,
+  timestampFormatter,
+} from "./formatters.js";
 import { getTraceContext } from "./otel.js";
 import type { ConfigureOptions } from "./types.js";
 

@@ -18,7 +18,7 @@ Long-lived release branches (`develop`, `release/*`, `next`) carry costs:
 - Backports double the surface area for any fix that must reach an older
   major.
 - Version skew between branches drifts and must be reconciled.
-- Tag-pinned consumers care about *tags*, not branches; branch ceremony does
+- Tag-pinned consumers care about _tags_, not branches; branch ceremony does
   not buy them anything.
 - For a v0/v1 library with no production consumers yet, none of those costs
   is justified.
@@ -48,8 +48,8 @@ rules:
 
 If a future scenario demands a back-patch to an older major (e.g., a major
 external consumer pinned to an unsupported major needs a security fix), the
-exception is to create a long-lived `release/N.x` branch *only at that
-moment*, not preemptively.
+exception is to create a long-lived `release/N.x` branch _only at that
+moment_, not preemptively.
 
 ## Consequences
 

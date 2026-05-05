@@ -16,10 +16,6 @@
     "isolatedModules": true,
     "types": ["node", "jest"]
   },
-  "include": [
-    "packages/ts/*/src/**/*.ts",
-    "packages/ts/*/tests/**/*.ts",
-    "examples/ts-*/**/*.ts"
-  ],
+  "include": ["packages/ts/*/src/**/*.ts", "packages/ts/*/tests/**/*.ts", "examples/ts-*/**/*.ts"],
   "exclude": ["**/node_modules", "**/dist", "**/build"]
 }

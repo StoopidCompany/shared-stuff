@@ -10,7 +10,7 @@ TrAICE cells and other consumers pull `stoopid-commons` packages from
 public registries (PyPI, npm, crates.io) by version pin. During in-flight
 development of a `stoopid-commons` change — say a new field in the
 logging schema — a consumer needs to validate against the unreleased
-package *before* it ships. Two naïve approaches fail:
+package _before_ it ships. Two naïve approaches fail:
 
 1. **Publish a real version to public registries to test it.** Public
    registries are append-only and global. Pre-release tags pollute
@@ -19,7 +19,7 @@ package *before* it ships. Two naïve approaches fail:
 2. **Use path-based local installs (e.g. `pip install -e ../local-path`,
    npm `file:` deps).** Works on one developer machine, but does not
    reproduce in containers or CI. It also does not validate the
-   *published* package layout — the `pyproject.toml` packaging metadata,
+   _published_ package layout — the `pyproject.toml` packaging metadata,
    the npm `files` whitelist, the included assets — and so it routinely
    passes locally and breaks at consumer install time.
 
