@@ -148,6 +148,9 @@ jobs:
       - name: Format check
         run: pnpm exec prettier --check .
 
+      - name: Build (emits dist/ + .d.ts that examples consume)
+        run: pnpm -r --if-present run build
+
       - name: Type check
         run: pnpm exec tsc --noEmit
 
