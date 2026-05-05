@@ -1,6 +1,6 @@
 {
   "name": "stoopid-logging",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Structured JSON logging for TypeScript/Node services, conforming to the stoopid-commons shared log-event schema.",
   "license": "MIT",
   "author": "Stoopid Company",
