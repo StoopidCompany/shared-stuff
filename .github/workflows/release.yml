@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 # Only one release run at a time
 concurrency:
@@ -108,7 +108,7 @@ jobs:
   # ---------------------------------------------------------------------------
   scan-sbom:
     name: Scan SBOM
-    needs: [ release-please, sbom ]
+    needs: [release-please, sbom]
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
 

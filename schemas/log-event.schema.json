@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://stoopid.dev/schemas/log-event.schema.json",
+  "title": "Stoopid log event",
+  "description": "Single structured log event emitted by stoopid-logging packages (Python, TypeScript, Rust). The shape is identical across languages. See docs/adrs/0004-shared-logging-json-schema.md and docs/adrs/0008-log-event-trace-id-and-context-shape.md.",
+  "type": "object",
+  "required": ["timestamp", "level", "message", "service", "version"],
+  "additionalProperties": false,
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 / ISO 8601 UTC timestamp with millisecond precision, ending in 'Z' (e.g. 2026-05-05T17:42:11.123Z)."
+    },
+    "level": {
+      "type": "string",
+      "enum": ["debug", "info", "warn", "error", "fatal"],
+      "description": "Severity level. Lowercase. The five values listed are the only permitted values."
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable event description."
+    },
+    "service": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Service name. Sourced from OTEL_SERVICE_NAME (preferred) or SERVICE_NAME."
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Service version. Sourced from SERVICE_VERSION or service.version in OTEL_RESOURCE_ATTRIBUTES."
+    },
+    "trace_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$",
+      "description": "W3C Trace Context trace ID, lowercase hex. Auto-populated from the ambient OpenTelemetry context when present; omitted otherwise."
+    },
+    "span_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{16}$",
+      "description": "W3C Trace Context span ID, lowercase hex. Auto-populated from the ambient OpenTelemetry context when present; omitted otherwise."
+    },
+    "logger": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional logger name (e.g. module path). Useful for filtering by emitter."
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Structured error info. Reserved field; populated when an exception is logged. Shape is intentionally open at v0.1.0."
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Caller-supplied bound or extra fields. Open shape; users may add anything. Omitted from the emitted event when empty."
+    }
+  },
+  "examples": [
+    {
+      "timestamp": "2026-05-05T17:42:11.123Z",
+      "level": "info",
+      "message": "service started",
+      "service": "orders",
+      "version": "1.4.2"
+    },
+    {
+      "timestamp": "2026-05-05T17:42:11.456Z",
+      "level": "info",
+      "message": "order placed",
+      "service": "orders",
+      "version": "1.4.2",
+      "logger": "orders.api",
+      "context": {
+        "order_id": "ord_abc123",
+        "customer": { "id": "cust_42" }
+      }
+    },
+    {
+      "timestamp": "2026-05-05T17:42:11.789Z",
+      "level": "warn",
+      "message": "downstream slow",
+      "service": "orders",
+      "version": "1.4.2",
+      "trace_id": "4bf92f3577b34da6a3ce929d0e0e4736",
+      "span_id": "00f067aa0ba902b7",
+      "logger": "orders.http",
+      "context": {
+        "downstream": "billing",
+        "elapsed_ms": 842
+      }
+    }
+  ]
+}

@@ -200,7 +200,11 @@ check: lint typecheck test ## Run full CI-equivalent checks locally
 build: ## Build all detected languages
 ifdef HAS_PYTHON
 	@echo "==> Building Python..."
-	@uv build
+	@if grep -q '\[tool.uv.workspace\]' pyproject.toml; then \
+		uv build --all-packages; \
+	else \
+		uv build; \
+	fi
 endif
 ifdef JS_PM
 	@echo "==> Building JS/TS..."

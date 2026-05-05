@@ -34,8 +34,8 @@ Three plausible conventions exist:
 2. **Scoped npm + bare elsewhere.** Idiomatic on npm, asymmetric across
    languages.
 3. **Always-prefixed `stoopid-commons-<thing>`.** Self-documenting that
-   the artifact ships from this repo, but verbose and treats the *repo
-   name* as part of every *artifact name*.
+   the artifact ships from this repo, but verbose and treats the _repo
+   name_ as part of every _artifact name_.
 
 Three of the planned first-target packages share a common name across
 languages: a Python `stoopid-logging`, a TypeScript `stoopid-logging`,
@@ -53,7 +53,7 @@ Helm charts use `stoopid-<thing>` (e.g. `stoopid-service-base`).
   module conventions.
 - npm packages are **not** scoped (`@stoopid/<thing>` is rejected).
 - The repo-name prefix `stoopid-commons-` is **not** used as a package
-  prefix; "commons" describes the *repo*, not the *artifacts*.
+  prefix; "commons" describes the _repo_, not the _artifacts_.
 - Identical published names across languages (e.g. three different
   `stoopid-logging` packages on three different registries) are
   disambiguated in git tags by a language suffix on the release-please
@@ -109,8 +109,8 @@ ADR change.
   repository name with the artifact name. Consumers should not need to
   know which repo a package came from to use it.
 - **Per-language idiomatic naming (e.g. `stoopid_logging` Python
-  distribution name)** — rejected. PEP 8 governs *import* names, not
-  *distribution* names; the distribution name is a marketing and
+  distribution name)** — rejected. PEP 8 governs _import_ names, not
+  _distribution_ names; the distribution name is a marketing and
   discovery surface, and consistency across languages outweighs
   per-ecosystem idiom.
 

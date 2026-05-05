@@ -1,0 +1,9 @@
+**/dist/
+**/build/
+**/target/
+**/.venv/
+**/node_modules/
+**/coverage/
+*.lock
+**/CHANGELOG.md
+pnpm-lock.yaml

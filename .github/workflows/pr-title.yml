@@ -2,8 +2,8 @@ name: PR Title Lint
 
 on:
   pull_request_target:
-    branches: [ main ]
-    types: [ opened, edited, reopened, synchronize ]
+    branches: [main]
+    types: [opened, edited, reopened, synchronize]
 
 permissions:
   contents: read
