@@ -66,7 +66,7 @@ jobs:
       contents: write # required to upload assets to the release
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
 
@@ -95,7 +95,7 @@ jobs:
             --clobber
 
       - name: Upload SBOMs as workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ needs.release-please.outputs.tag_name }}
           path: |
