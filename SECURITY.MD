@@ -3,7 +3,7 @@
 This document describes how security is handled in this project, how to report
 vulnerabilities, and what conventions contributors must follow.
 
-> **Template note:** Replace all `<ORG>`, `<PROJECT_NAME>`, and
+> **Template note:** Replace all `Stoopid Company`, `stoopid-commons`, and
 > `<security@stoopid.email>` placeholders before publishing. Remove this note once
 > instantiated.
 
@@ -166,7 +166,7 @@ Every incident requires a blameless post-mortem documenting: timeline, root caus
 ## Compliance and Audit
 
 Logs, audit trails, and evidence relevant to compliance obligations are
-retained per `<ORG>` policy. Contributors should not alter or delete audit
+retained per `Stoopid Company` policy. Contributors should not alter or delete audit
 data without explicit security approval.
 
 ## Questions

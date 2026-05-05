@@ -35,32 +35,10 @@ env:
 
 jobs:
   # ===========================================================================
-  # Template guard — short-circuits the entire workflow if .template-repo
-  # marker file exists. Delete .template-repo to enable real Docker builds.
-  # ===========================================================================
-  guard:
-    name: Template guard
-    runs-on: ubuntu-latest
-    outputs:
-      is_template: ${{ steps.check.outputs.is_template }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: check
-        run: |
-          if [ -f .template-repo ]; then
-            echo "::notice::This is the unconfigured template repo. Skipping Docker build."
-            echo "is_template=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_template=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  # ===========================================================================
   # Build (and conditionally push) the image
   # ===========================================================================
   build:
     name: Build & Push
-    needs: guard
-    if: needs.guard.outputs.is_template != 'true'
     runs-on: ubuntu-latest
 
     permissions:

@@ -17,32 +17,10 @@ permissions:
 
 jobs:
   # ===========================================================================
-  # Template guard — short-circuits the entire workflow if .template-repo
-  # marker file exists. Delete .template-repo to enable real CI runs.
-  # ===========================================================================
-  guard:
-    name: Template guard
-    runs-on: ubuntu-latest
-    outputs:
-      is_template: ${{ steps.check.outputs.is_template }}
-    steps:
-      - uses: actions/checkout@v6
-      - id: check
-        run: |
-          if [ -f .template-repo ]; then
-            echo "::notice::This is the unconfigured template repo. Skipping CI."
-            echo "is_template=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "is_template=false" >> "$GITHUB_OUTPUT"
-          fi
-
-  # ===========================================================================
   # Path filter — determines which language jobs need to run
   # ===========================================================================
   changes:
     name: Detect changes
-    needs: guard
-    if: needs.guard.outputs.is_template != 'true'
     runs-on: ubuntu-latest
     outputs:
       python: ${{ steps.filter.outputs.python }}
@@ -279,16 +257,11 @@ jobs:
   ci-passed:
     name: CI passed
     runs-on: ubuntu-latest
-    needs: [ guard, changes, python, typescript, rust, terraform, docker ]
+    needs: [ changes, python, typescript, rust, terraform, docker ]
     if: always()
     steps:
       - name: Verify all required jobs succeeded or were skipped
         run: |
-          # If the template guard fired, allow the workflow to pass.
-          if [ "${{ needs.guard.outputs.is_template }}" = "true" ]; then
-            echo "Template guard active. CI skipped intentionally."
-            exit 0
-          fi
           # Any required job that ran must have succeeded.
           # Skipped jobs (because their language wasn't changed) are fine.
           results='${{ toJSON(needs) }}'
