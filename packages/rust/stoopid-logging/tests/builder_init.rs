@@ -78,12 +78,22 @@ fn builder_init_lifecycle() {
     tracing::error!("hard fail");
 
     let events = writer.lines();
-    assert_eq!(events.len(), 2, "info should be filtered out, got {events:?}");
+    assert_eq!(
+        events.len(),
+        2,
+        "info should be filtered out, got {events:?}"
+    );
     assert_eq!(events[0]["level"], Value::String("warn".into()));
     assert_eq!(events[0]["service"], Value::String("builder-test".into()));
     assert_eq!(events[0]["version"], Value::String("9.9.9".into()));
-    assert_eq!(events[0]["message"], Value::String("service degraded".into()));
-    assert_eq!(events[0]["context"]["reason"], Value::String("downstream slow".into()));
+    assert_eq!(
+        events[0]["message"],
+        Value::String("service degraded".into())
+    );
+    assert_eq!(
+        events[0]["context"]["reason"],
+        Value::String("downstream slow".into())
+    );
     assert_eq!(events[1]["level"], Value::String("error".into()));
 
     // Second try_init must report AlreadyInitialized.

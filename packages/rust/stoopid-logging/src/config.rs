@@ -104,7 +104,10 @@ mod tests {
         assert_eq!(resolve_level(Some("WARNING")).unwrap(), LevelFilter::WARN);
         assert_eq!(resolve_level(Some("FATAL")).unwrap(), LevelFilter::ERROR);
         assert_eq!(resolve_level(Some("critical")).unwrap(), LevelFilter::ERROR);
-        assert_eq!(resolve_level(Some("  debug  ")).unwrap(), LevelFilter::DEBUG);
+        assert_eq!(
+            resolve_level(Some("  debug  ")).unwrap(),
+            LevelFilter::DEBUG
+        );
     }
 
     #[test]
