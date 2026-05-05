@@ -14,6 +14,6 @@ from stoopid_logging._config import configure_logging, get_logger
 try:
     __version__ = version("stoopid-logging")
 except PackageNotFoundError:
-    __version__ = "0.0.0"
+    __version__ = "0.1.0"
 
 __all__ = ["__version__", "configure_logging", "get_logger"]
