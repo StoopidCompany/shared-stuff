@@ -27,7 +27,6 @@ jobs:
       typescript: ${{ steps.filter.outputs.typescript }}
       rust: ${{ steps.filter.outputs.rust }}
       terraform: ${{ steps.filter.outputs.terraform }}
-      docker: ${{ steps.filter.outputs.docker }}
       workflows: ${{ steps.filter.outputs.workflows }}
     steps:
       - uses: actions/checkout@v6
@@ -65,12 +64,6 @@ jobs:
               - '**/*.tfvars'
               - '**/*.hcl'
               - '.terraform-version'
-            docker:
-              - '**/Dockerfile'
-              - '**/Dockerfile.*'
-              - '**/.dockerignore'
-              - '**/docker-compose*.yml'
-              - '**/compose*.yml'
             workflows:
               - '.github/workflows/**'
               - '.github/actions/**'
@@ -234,30 +227,12 @@ jobs:
             done
 
   # ===========================================================================
-  # Docker: lint Dockerfiles
-  # ===========================================================================
-  docker:
-    name: Docker
-    needs: changes
-    if: needs.changes.outputs.docker == 'true' || needs.changes.outputs.workflows ==
-      'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Lint Dockerfiles (hadolint)
-        uses: hadolint/hadolint-action@v3.3.0
-        with:
-          recursive: true
-          ignore: DL3008,DL3018 # version-pin warnings; tune per project
-
-  # ===========================================================================
   # Aggregator — single required check that gates merge
   # ===========================================================================
   ci-passed:
     name: CI passed
     runs-on: ubuntu-latest
-    needs: [changes, python, typescript, rust, terraform, docker]
+    needs: [changes, python, typescript, rust, terraform]
     if: always()
     steps:
       - name: Verify all required jobs succeeded or were skipped

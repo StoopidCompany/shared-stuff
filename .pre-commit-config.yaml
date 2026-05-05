@@ -90,15 +90,6 @@ repos:
         args: [-i, "2", -ci, -bn, -w]
 
   # ===========================================================================
-  # Dockerfile
-  # ===========================================================================
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.13.1-beta
-    hooks:
-      - id: hadolint-docker
-        args: [--ignore, DL3008, --ignore, DL3018]
-
-  # ===========================================================================
   # Python — runs only when Python files are staged
   # ===========================================================================
   - repo: https://github.com/astral-sh/ruff-pre-commit
