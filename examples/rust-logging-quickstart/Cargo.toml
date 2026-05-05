@@ -1,0 +1,18 @@
+[package]
+name = "rust-logging-quickstart"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+stoopid-logging = { path = "../../packages/rust/stoopid-logging" }
+tracing = "0.1"
+
+[[bin]]
+name = "rust-logging-quickstart"
+path = "main.rs"
+
+[lints]
+workspace = true

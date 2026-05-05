@@ -97,3 +97,4 @@ review and edit before committing.
 - [ADR-0005 — Parameterized Helm chart base](0005-parameterized-helm-chart-base.md)
 - [ADR-0006 — Local package registry workflow](0006-local-package-registry-workflow.md)
 - [ADR-0007 — Package naming convention](0007-package-naming-convention.md)
+- [ADR-0008 — Log-event trace_id/span_id placement and context shape](0008-log-event-trace-id-and-context-shape.md)

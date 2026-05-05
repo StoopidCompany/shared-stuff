@@ -1,0 +1,57 @@
+[tool.uv.workspace]
+members = [
+    "packages/python/stoopid-logging",
+    "examples/python-logging-quickstart",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "jsonschema>=4.21",
+    "ruff>=0.8",
+    "pyright>=1.1.380",
+    "diff-cover>=9",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "S", "A", "C4", "SIM", "TID", "PT", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S101", "PLR2004"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["packages/python/stoopid-logging/src", "examples/python-logging-quickstart"]
+exclude = [
+    "**/__pycache__",
+    "**/.venv",
+    "**/node_modules",
+    "**/target",
+    "**/tests",
+]
+reportMissingTypeStubs = false
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --strict-config"
+testpaths = [
+    "packages/python/stoopid-logging/tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["packages/python/stoopid-logging/src"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
