@@ -1,6 +1,6 @@
 {
   "packages/python/stoopid-logging": "0.0.0",
   "packages/ts/stoopid-logging": "0.0.0",
-  "packages/rust/stoopid-logging": "0.0.0",
+  "packages/rust/stoopid-logging": "0.1.0",
   "charts/stoopid-service-base": "0.0.0"
 }
