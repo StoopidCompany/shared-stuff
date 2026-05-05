@@ -44,7 +44,7 @@ jobs:
     outputs:
       is_template: ${{ steps.check.outputs.is_template }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: check
         run: |
           if [ -f .template-repo ]; then
@@ -74,7 +74,7 @@ jobs:
       digest: ${{ steps.build.outputs.digest }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up QEMU (for multi-arch builds)
         uses: docker/setup-qemu-action@v4
