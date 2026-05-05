@@ -32,6 +32,7 @@ opentelemetry = { version = "0.26", optional = true }
 [dev-dependencies]
 jsonschema = { version = "0.18", features = ["draft202012"] }
 opentelemetry_sdk = "0.26"
+serial_test = "3"
 
 [features]
 default = []
