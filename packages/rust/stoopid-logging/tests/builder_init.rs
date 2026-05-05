@@ -52,9 +52,9 @@ impl Write for VecWriterGuard {
     }
 }
 
-/// Drives the full happy path: builder().level().with_writer().try_init() →
-/// log emission honors level filtering → second try_init returns
-/// AlreadyInitialized → top-level try_init() swallows that error.
+/// Drives the full happy path: `builder().level().with_writer().try_init()` →
+/// log emission honors level filtering → second `try_init` returns
+/// `AlreadyInitialized` → top-level `try_init()` swallows that error.
 ///
 /// All assertions live in one function because there is exactly one global
 /// subscriber slot per test binary.
@@ -110,7 +110,7 @@ fn builder_init_lifecycle() {
     assert!(matches!(stdout_again, Err(InitError::AlreadyInitialized)));
 }
 
-/// `Builder::try_init` rejects an unknown LOG_LEVEL value before installing
+/// `Builder::try_init` rejects an unknown `LOG_LEVEL` value before installing
 /// any subscriber. Lives in its own test binary so the global slot stays free.
 #[test]
 fn unknown_level_returns_error_without_installing() {

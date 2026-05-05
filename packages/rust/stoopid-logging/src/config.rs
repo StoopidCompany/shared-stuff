@@ -117,7 +117,9 @@ mod tests {
         let err = resolve_level(Some("loud")).unwrap_err();
         match err {
             InitError::UnknownLevel(s) => assert_eq!(s, "loud"),
-            other => panic!("expected UnknownLevel, got {other:?}"),
+            other @ InitError::AlreadyInitialized => {
+                panic!("expected UnknownLevel, got {other:?}")
+            }
         }
     }
 

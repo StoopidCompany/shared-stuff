@@ -323,7 +323,7 @@ mod tests {
         assert_eq!(fields["i"], Value::Number((-7_i64).into()));
         assert_eq!(fields["u"], Value::Number(42_u64.into()));
         assert_eq!(fields["b"], Value::Bool(true));
-        assert!(fields["f"].as_f64().unwrap().abs() - 1.5 < f64::EPSILON);
+        assert!((fields["f"].as_f64().unwrap() - 1.5).abs() < f64::EPSILON);
         // `?` formatter routes through record_debug → string.
         assert_eq!(fields["d"], Value::String("[1, 2, 3]".into()));
         // `message` is recorded by the format_args! impl which routes through
@@ -347,6 +347,6 @@ mod tests {
         // And: a finite f64 round-trips through Value::Number.
         let f = serde_json::Number::from_f64(2.5).unwrap();
         visitor.fields.insert("x".to_string(), Value::Number(f));
-        assert!(visitor.fields["x"].as_f64().unwrap() - 2.5 < f64::EPSILON);
+        assert!((visitor.fields["x"].as_f64().unwrap() - 2.5).abs() < f64::EPSILON);
     }
 }
