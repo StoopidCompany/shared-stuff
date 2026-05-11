@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Run release-please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
         with:
           # Defaults to GITHUB_TOKEN. For workflows that should re-trigger
           # other workflows on the release commit/tag, replace with a PAT
