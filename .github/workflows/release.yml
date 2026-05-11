@@ -118,7 +118,7 @@ jobs:
 
     steps:
       - name: Download SBOMs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: sbom-${{ needs.release-please.outputs.tag_name }}
 
